@@ -1,0 +1,42 @@
+﻿@model SignalRCoreMvcNotification.Models.UserLoginViewModel
+
+<link rel="stylesheet" href="~/css/login.css" />
+<div class="wrapper bg-white mt-sm-5">
+    <h4 class="pb-4 border-bottom">Login</h4>
+    <div class="py-2">
+        <form method="post" enctype="multipart/form-data" asp-controller="User" asp-action="CreateSecret" class="form">
+            <div class="row py-2">
+                <div class="col-md-6">
+                    <label for="secretname">Username</label>
+                    <input type="text" class="bg-light form-control" placeholder="Username">
+                    <span  class="text-danger"></span>
+                </div>
+                <div class="col-md-6 pt-md-0 pt-3">
+                    <label for="secretvalue">Password</label>
+                    <input  type="password" class="bg-light form-control" placeholder="Password">
+                    <span  class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="py-3 pb-4 border-bottom">
+                <button type="submit" class="btn btn-primary mr-3">Save Changes</button>
+                <a asp-controller="User" asp-action="Index" class="btn border button">Cancel</a>
+            </div>
+            @if (Model.Submit)
+            {
+                if (Model.IsSuccess)
+                {
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <strong>@Model.Message !</strong>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning alert-dismissible fade show">
+                        <strong>@Model.Message !</strong>
+                    </div>
+                }
+            }
+        </form>
+    </div>
+</div>
