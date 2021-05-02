@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SignalRCoreMvcNotification.DataContext;
 using SignalRCoreMvcNotification.Models;
+using SignalRCoreMvcNotification.Security;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,13 +15,16 @@ namespace SignalRCoreMvcNotification.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly IHubContext<UsersHub> _hubContext;
+        private SignalRCoreDataContext _dataContext;
+        private IPasswordHash _passwordHash;
 
-        public HomeController(ILogger<HomeController> logger, IHubContext<UsersHub> hubContext)
+        public HomeController(IHubContext<UsersHub> hubContext , SignalRCoreDataContext dataContext 
+        ,IPasswordHash passwordHash)
         {
-            _logger = logger;
+            _passwordHash = passwordHash;
             _hubContext = hubContext;
+            _dataContext = dataContext;
         }
 
         [HttpGet]
@@ -34,12 +40,28 @@ namespace SignalRCoreMvcNotification.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(UserLoginViewModel userLoginViewModel)
+        public async Task<IActionResult> Login(UserLoginViewModel userLoginViewModel)
         {
+            userLoginViewModel.Submit = true;
             if(ModelState.IsValid)
             {
-
+                //check username
+                var checkUser = await _dataContext.User.Where(x => x.Email == userLoginViewModel.Username).FirstOrDefaultAsync();
+                if (checkUser!=null)
+                {
+                    //check password
+                    var checkPassword = await _passwordHash.VerifHash(userLoginViewModel.Password, checkUser.Password);
+                    if (checkPassword)
+                    {
+                        return RedirectToAction("Index");
+                    }
+                    userLoginViewModel.IsSuccess = false;
+                    userLoginViewModel.Message = "Username Or Password Wrong !";
+                }
+                userLoginViewModel.IsSuccess = false;
+                userLoginViewModel.Message = "Username Not Found !";
             }
+
             return View(userLoginViewModel);
         }
 
