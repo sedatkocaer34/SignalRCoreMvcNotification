@@ -4,47 +4,50 @@
 <div class="wrapper bg-white mt-sm-5">
     <h4 class="pb-4 border-bottom">Register</h4>
     <div class="py-2">
-        <form method="post" enctype="multipart/form-data" asp-controller="User" asp-action="CreateSecret" class="form">
+        <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="Register" class="form">
             <div class="row py-2">
                 <div class="col-md-12">
                     <label for="secretname">Username</label>
-                    <input type="text" class="bg-light form-control" placeholder="Username">
-                    <span class="text-danger"></span>
+                    <input asp-for="Username" autocomplete="off" type="text" class="bg-light form-control" placeholder="Username">
+                    <span asp-validation-for="Username" class="text-danger"></span>
                 </div>
                 <div class="col-md-12 pt-md-0 pt-3">
                     <label for="secretvalue">Email</label>
-                    <input type="text" class="bg-light form-control" placeholder="Email">
-                    <span class="text-danger"></span>
+                    <input asp-for="Email" autocomplete="off" type="text" class="bg-light form-control" placeholder="Email">
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
                 <div class="col-md-12">
                     <label for="secretname">Password</label>
-                    <input type="password" class="bg-light form-control" placeholder="Password">
-                    <span class="text-danger"></span>
+                    <input asp-for="Password" autocomplete="off" type="password" class="bg-light form-control" placeholder="Password">
+                    <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
                 <div class="col-md-12 pt-md-0 pt-3">
                     <label for="secretvalue">Password Confirm</label>
-                    <input type="password" class="bg-light form-control" placeholder="Password Confirm">
-                    <span class="text-danger"></span>
+                    <input asp-for="PasswordMatch" autocomplete="off" type="password" class="bg-light form-control" placeholder="Password Confirm">
+                    <span asp-validation-for="PasswordMatch" class="text-danger"></span>
                 </div>
             </div>
 
             <div class="py-3 pb-4 border-bottom">
                 <button type="submit" class="btn btn-primary mr-3">Save Changes</button>
-                <a asp-controller="User" asp-action="Index" class="btn border button">Cancel</a>
+                <a asp-controller="Home" asp-action="Index" class="btn border button">Cancel</a>
             </div>
-            @if (Model.Submit)
+            @if (Model != null)
             {
-                if (Model.IsSuccess)
+                @if (Model.Submit)
                 {
-                    <div class="alert alert-success alert-dismissible fade show">
-                        <strong>@Model.Message !</strong>
-                    </div>
-                }
-                else
-                {
-                    <div class="alert alert-warning alert-dismissible fade show">
-                        <strong>@Model.Message !</strong>
-                    </div>
+                    if (Model.IsSuccess)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <strong>@Model.Message !</strong>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning alert-dismissible fade show">
+                            <strong>@Model.Message !</strong>
+                        </div>
+                    }
                 }
             }
         </form>

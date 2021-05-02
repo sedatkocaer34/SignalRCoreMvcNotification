@@ -21,8 +21,16 @@
                     <a asp-controller="Home" asp-action="Index" class="nav-item nav-link active">Home</a>
                 </div>
                 <div class="navbar-nav ml-auto">
-                    <a asp-controller="Home" asp-action="Login" class="nav-item nav-link">Login</a>
-                    <a asp-controller="Home" asp-action="Register" class="nav-item nav-link">Sign Up</a>
+                 @if (!User.Identity.IsAuthenticated)
+                 {
+                     <a asp-controller="Home" asp-action="Login" class="nav-item nav-link">Login</a>
+                     <a asp-controller="Home" asp-action="Register" class="nav-item nav-link">Sign Up</a>
+                 }
+                 else
+                 {
+                     <a asp-controller="Home" asp-action="Login" class="nav-item nav-link">Profile</a>
+                     <a asp-controller="Home" asp-action="Register" class="nav-item nav-link">Notification List</a>
+                 }
                 </div>
             </div>
         </nav>

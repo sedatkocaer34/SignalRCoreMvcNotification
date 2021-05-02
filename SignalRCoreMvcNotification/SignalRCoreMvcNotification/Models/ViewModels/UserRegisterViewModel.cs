@@ -12,6 +12,7 @@ namespace SignalRCoreMvcNotification.Models
         public string Username { get; set; }
 
         [Required(ErrorMessage = "User Name zorunludur")]
+        [EmailAddress(ErrorMessage="Email Adress Not Valid")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Şifre zorunludur")]
