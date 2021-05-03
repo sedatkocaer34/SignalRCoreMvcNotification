@@ -12,27 +12,26 @@ namespace SignalRCoreMvcNotification.Redis
 {
     public class RedisManager : IRedisService
     {
-        public List<T> GetAll<T>(string key)
+        public bool Any(string key)
         {
             using (IRedisClient client = new RedisClient())
             {
-                List<T> dataList = new List<T>();
-                List<string> allKeys = client.SearchKeys(key);
-                foreach (string keyvalue in allKeys)
-                {
-                    dataList.Add(client.Get<T>(keyvalue));
-                }
-                return dataList;
+               return client.ContainsKey(key);
             }
         }
 
-        public T GetById<T>(string key)
+       
+
+        public T Get<T>(string key)
         {
             using (IRedisClient client = new RedisClient())
             {
-                var redisdata = client.Get<T>(key);
-
-                return redisdata;
+                if(Any(key))
+                {
+                    string jsondata = client.GetValue(key);
+                    return JsonConvert.DeserializeObject<T>(jsondata);
+                }
+                return default;
             }
         }
 
@@ -44,11 +43,12 @@ namespace SignalRCoreMvcNotification.Redis
             }
         }
 
-        public void set<T>(string key, T valueObject, int expiration)
+        public void set<T>(string key, T valueObject)
         {
             using (IRedisClient client = new RedisClient())
             {
-                var redisdata = client.Set<T>(key,valueObject,DateTime.Now.AddMinutes(expiration));
+                string jsonData = JsonConvert.SerializeObject(valueObject);
+                client.SetValue(key, jsonData,TimeSpan.FromMinutes(60));
             }
         }
     }

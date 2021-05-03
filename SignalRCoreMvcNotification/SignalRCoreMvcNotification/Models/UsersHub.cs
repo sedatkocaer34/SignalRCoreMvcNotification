@@ -18,11 +18,29 @@ namespace SignalRCoreMvcNotification.Models
         public override Task OnConnectedAsync()
         {
             var currentUser = Context.User;
+            var onlineuser = _redisService.Get<List<OnlineUserViewModel>>("onlineuser");
+            if (onlineuser==null)
+            {
+                onlineuser = new List<OnlineUserViewModel>();
+            }
 
-            Clients.All.SendAsync("connectuser", currentUser.Identity.Name);
-            _redisService.set<OnlineUserViewModel>("onlineuser", new OnlineUserViewModel() { Id = 1, Name = currentUser.Identity.Name }, 60);
+            onlineuser.Add(new OnlineUserViewModel() { ContextId = Context.ConnectionId,Name=currentUser.Identity.Name });
+            _redisService.set<List<OnlineUserViewModel>>("onlineuser",onlineuser);
 
+            Clients.All.SendAsync("connectuserlist", onlineuser);
             return base.OnConnectedAsync();
+        }
+
+        public override Task OnDisconnectedAsync(Exception exception)
+        {
+            var onlineuser = _redisService.Get<List<OnlineUserViewModel>>("onlineuser");
+            if (onlineuser != null)
+            {
+                onlineuser.Remove(onlineuser.FirstOrDefault(x => x.ContextId == Context.ConnectionId));
+                _redisService.set<List<OnlineUserViewModel>>("onlineuser", onlineuser);
+                Clients.All.SendAsync("connectuserlist", onlineuser);
+            }
+            return base.OnDisconnectedAsync(exception);
         }
 
     }

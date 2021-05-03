@@ -6,9 +6,24 @@
     (function setupConnection() {
         var connection = new signalR.HubConnectionBuilder().withUrl("/usershub").build();
         connection.start().catch(err => console.error(err.toString())).then(response => console.log("connected"));
-        connection.on("connectuser", function (contextId) {
-            var newOrderNode = document.createElement("<tr>");
-            console.log(contextId);
+        connection.on("connectuserlist", function (userlist) {
+            for (var i = 0; i < userlist.length; i++) {
+                var newOrderNode = document.createElement("TR");
+
+                var row = document.createElement("TH");
+                row.innerHTML = i;
+
+                var username = document.createElement("TD");
+                username.innerHTML = userlist[i].name;
+
+                newOrderNode.appendChild(row);
+                newOrderNode.appendChild(username);
+
+                var mainTable = document.getElementById("onlineList");
+                mainTable.append(newOrderNode);
+            }
+            
+            console.log(userlist);
         });
     })();
 </script>
@@ -28,14 +43,7 @@
                 <th scope="row">1</th>
                 <td>Mark</td>
             </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-            </tr>
-            <tr>
-                <th scope="row">3</th>
-                <td>Larry</td>
-            </tr>
+            
         </tbody>
     </table>
 </div>

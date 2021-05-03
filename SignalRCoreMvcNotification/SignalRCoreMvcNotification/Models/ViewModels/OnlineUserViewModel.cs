@@ -7,7 +7,7 @@ namespace SignalRCoreMvcNotification.Models.ViewModels
 {
     public class OnlineUserViewModel
     {
-        public int Id { get; set; }
+        public string ContextId { get; set; }
         public string Name { get; set; }
     }
 }

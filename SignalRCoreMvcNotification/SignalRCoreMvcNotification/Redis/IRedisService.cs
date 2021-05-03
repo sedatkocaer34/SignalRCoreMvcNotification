@@ -7,12 +7,13 @@ namespace SignalRCoreMvcNotification.Redis
 {
     public interface IRedisService
     {
-        void set<T>(string key, T valueObject, int expiration);
+        void set<T>(string key, T valueObject);
 
-        T GetById<T>(string key);
+        T Get<T>(string key);
 
-        List<T> GetAll<T>(string key);
-
+      
         void Remove(string key);
+
+        bool Any(string key);
     }
 }

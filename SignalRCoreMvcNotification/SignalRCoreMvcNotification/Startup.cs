@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SignalRCoreMvcNotification.DataContext;
 using SignalRCoreMvcNotification.Models;
+using SignalRCoreMvcNotification.Redis;
 using SignalRCoreMvcNotification.Security;
 
 namespace SignalRCoreMvcNotification
@@ -33,6 +34,7 @@ namespace SignalRCoreMvcNotification
             });
             services.AddDbContext<SignalRCoreDataContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<IPasswordHash, PasswordHash>();
+            services.AddScoped<IRedisService, RedisManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
