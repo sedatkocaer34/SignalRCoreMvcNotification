@@ -6,6 +6,10 @@
     (function setupConnection() {
         var connection = new signalR.HubConnectionBuilder().withUrl("/usershub").build();
         connection.start().catch(err => console.error(err.toString())).then(response => console.log("connected"));
+        connection.on("connectuser", function (contextId) {
+            var newOrderNode = document.createElement("<tr>");
+            console.log(contextId);
+        });
     })();
 </script>
 <div class="text-center">
@@ -15,26 +19,22 @@
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">First</th>
-                <th scope="col">Last</th>
-                <th scope="col">Handle</th>
+                <th scope="col"></th>
+                <th scope="col">Username</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="onlineList">
             <tr>
                 <th scope="row">1</th>
                 <td>Mark</td>
-                <td>Otto</td>
             </tr>
             <tr>
                 <th scope="row">2</th>
                 <td>Jacob</td>
-                <td>Thornton</td>
             </tr>
             <tr>
                 <th scope="row">3</th>
                 <td>Larry</td>
-                <td>the Bird</td>
             </tr>
         </tbody>
     </table>

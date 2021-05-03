@@ -28,6 +28,7 @@ namespace SignalRCoreMvcNotification
             services.AddSignalR();
             services.AddStackExchangeRedisCache(options =>
             {
+                options.InstanceName = "SignalRCoreMvcNotification";
                 options.Configuration = Configuration.GetConnectionString("Redis");
             });
             services.AddDbContext<SignalRCoreDataContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));

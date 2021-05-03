@@ -128,6 +128,13 @@ namespace SignalRCoreMvcNotification.Controllers
             return View(userRegisterViewModel);
         }
 
+        [HttpGet]
+        public IActionResult GetOnlineUser()
+        {
+           
+            return Accepted();
+        }
+
         public void SetUserNamePrincipal(string Username)
         {
             var identity = new ClaimsIdentity(new[]
