@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SignalRCoreMvcNotification.DataContext;
+using SignalRCoreMvcNotification.Helpers;
 using SignalRCoreMvcNotification.Models;
 using SignalRCoreMvcNotification.Models.Domain;
 using SignalRCoreMvcNotification.Security;
@@ -34,6 +35,10 @@ namespace SignalRCoreMvcNotification.Controllers
         [HttpGet]
         public IActionResult Index()
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction(ActionNameHelper.HomeLogin);
+            }
             return View();
         }
 
@@ -50,7 +55,7 @@ namespace SignalRCoreMvcNotification.Controllers
             if(ModelState.IsValid)
             {
                 //check username
-                var checkUser = await _dataContext.User.Where(x => x.Email == userLoginViewModel.Username).FirstOrDefaultAsync();
+                var checkUser = await _dataContext.User.Where(x => x.Username == userLoginViewModel.Username).FirstOrDefaultAsync();
                 if (checkUser!=null)
                 {
                     //check password
@@ -58,7 +63,7 @@ namespace SignalRCoreMvcNotification.Controllers
                     if (checkPassword)
                     {
                         SetUserNamePrincipal(checkUser.Username);
-                        return RedirectToAction("Index");
+                        return RedirectToAction(ActionNameHelper.HomeIndex);
                     }
                     userLoginViewModel.IsSuccess = false;
                     userLoginViewModel.Message = "Username Or Password Wrong !";
@@ -82,6 +87,12 @@ namespace SignalRCoreMvcNotification.Controllers
             userRegisterViewModel.Submit = true;
             if (ModelState.IsValid)
             {
+                if (userRegisterViewModel.Password!=userRegisterViewModel.PasswordMatch)
+                {
+                    userRegisterViewModel.IsSuccess = false;
+                    userRegisterViewModel.Message = "Password and Password confirm not match !";
+                    return View(userRegisterViewModel);
+                }
                 var checkUser = await _dataContext.User.FirstOrDefaultAsync(x=>x.Username== userRegisterViewModel.Username) 
                     ?? await _dataContext.User.FirstOrDefaultAsync(x => x.Email == userRegisterViewModel.Email);
                 if (checkUser == null)
@@ -96,7 +107,7 @@ namespace SignalRCoreMvcNotification.Controllers
                             Password = hashPassword
                         });
                         _dataContext.SaveChanges();
-                        return RedirectToAction("Login");
+                        return RedirectToAction(ActionNameHelper.HomeLogin);
                     }
                     catch (Exception ex)
                     {
@@ -125,6 +136,12 @@ namespace SignalRCoreMvcNotification.Controllers
 
             var principal = new ClaimsPrincipal(identity);
             var login = HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction(ActionNameHelper.HomeLogin);
         }
     }
 }

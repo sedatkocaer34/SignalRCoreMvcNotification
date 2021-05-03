@@ -8,10 +8,10 @@ namespace SignalRCoreMvcNotification.Models
 {
     public class UserLoginViewModel:BaseViewModel
     {
-        [Required(ErrorMessage = "User Name zorunludur")]
+        [Required(ErrorMessage = "UserName is required.")]
         public string Username { get; set; }
 
-        [Required(ErrorMessage = "Şifre zorunludur")]
+        [Required(ErrorMessage = "Password is required.")]
         public string Password { get; set; }
 
        

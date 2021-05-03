@@ -8,17 +8,17 @@ namespace SignalRCoreMvcNotification.Models
 {
     public class UserRegisterViewModel:BaseViewModel
     {
-        [Required(ErrorMessage = "Email zorunludur")]
+        [Required(ErrorMessage = "Email is required.")]
         public string Username { get; set; }
 
-        [Required(ErrorMessage = "User Name zorunludur")]
-        [EmailAddress(ErrorMessage="Email Adress Not Valid")]
+        [Required(ErrorMessage = "Email Adress is required.")]
+        [EmailAddress(ErrorMessage="Email Adress Not Valid.")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Şifre zorunludur")]
+        [Required(ErrorMessage = "Password is required.")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = "Şifre Tekrar zorunludur")]
+        [Required(ErrorMessage = "Confirm Password is required.")]
         public string PasswordMatch { get; set; }
     }
 }
