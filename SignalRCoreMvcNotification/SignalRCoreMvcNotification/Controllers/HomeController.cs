@@ -8,6 +8,7 @@ using SignalRCoreMvcNotification.DataContext;
 using SignalRCoreMvcNotification.Helpers;
 using SignalRCoreMvcNotification.Models;
 using SignalRCoreMvcNotification.Models.Domain;
+using SignalRCoreMvcNotification.Models.ViewModels;
 using SignalRCoreMvcNotification.Security;
 using System;
 using System.Collections.Generic;
@@ -129,9 +130,13 @@ namespace SignalRCoreMvcNotification.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateNotification()
+        public JsonResult CreateNotification([FromBody] NotificationViewModel notificationViewModel)
         {
-            return Accepted();
+            if (ModelState.IsValid)
+            {
+                return Json(new { status = true, message = "Notify Inserted." });
+            }
+            return Json(new { status = false, message = "Please fill all input" });
         }
 
         public void SetUserNamePrincipal(string Username)

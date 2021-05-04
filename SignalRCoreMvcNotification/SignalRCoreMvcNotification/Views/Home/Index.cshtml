@@ -1,6 +1,11 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+<style>
+    .error_form{
+        color:red;
+    }
+</style>
 <script src="~/js/signalr/dist/browser/signalr.js" type="text/javascript"></script>
 <script>
     (function setupConnection() {
@@ -27,13 +32,21 @@
     })();
 
     function createNotification() {
+        // data
         let notificationName = document.getElementById("notificationName").value;
         let notificationDescription = document.getElementById("notificationDescription").value;
+
+        // input error messages
+        let notificationDescription_error = document.getElementById("notificationDescription_error_message");
+        let notificationName_error = document.getElementById("notificationName_error_message");
+        notificationDescription_error.innerHTML = "";
+        notificationName_error.innerHTML = "";
+
         if (notificationName && notificationDescription) {
-            fetch("/Order", {
+            fetch("/Home/CreateNotification", {
                 method: "POST",
                 body: JSON.stringify({
-                    product, size
+                    notificationName, notificationDescription
                 }),
                 headers: {
                     'content-type': 'application/json'
@@ -41,7 +54,10 @@
             }).then(response => console.log("order created"));
         }
         else {
-           
+            if (notificationName)
+                notificationDescription_error.innerHTML = "You must add a Notification Description!";
+            else
+                notificationName_error.innerHTML = "You must add a Notification Name!";
         }
     }
 </script>
@@ -95,16 +111,18 @@
                         <div class="form-group">
                             <label for="notificationName" class="col-form-label">Notification Name:</label>
                             <input type="text" class="form-control" autocomplete="off" id="notificationName" required>
+                            <span class="error_form" id="notificationName_error_message"></span>
                         </div>
                         <div class="form-group">
                             <label for="notificationDescription" class="col-form-label">Notification Description:</label>
-                            <textarea class="form-control"  autocomplete="off" id="notificationDescription" required></textarea>
+                            <textarea class="form-control" autocomplete="off" id="notificationDescription" required></textarea>
+                            <span class="error_form" id="notificationDescription_error_message"></span>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Send notification</button>
+                    <button onclick="createNotification()" type="button" class="btn btn-primary">Send notification</button>
                 </div>
             </div>
         </div>
