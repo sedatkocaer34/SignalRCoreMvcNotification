@@ -134,6 +134,8 @@ namespace SignalRCoreMvcNotification.Controllers
         {
             if (ModelState.IsValid)
             {
+                notificationViewModel.NotifyType = "info";
+                _hubContext.Clients.All.SendAsync("notifyMessage", notificationViewModel);
                 return Json(new { status = true, message = "Notify Inserted." });
             }
             return Json(new { status = false, message = "Please fill all input" });

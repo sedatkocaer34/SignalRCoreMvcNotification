@@ -5,6 +5,10 @@
     .error_form{
         color:red;
     }
+    #toast-container > div {
+        width: 350px;
+        height:100px;
+    }
 </style>
 <script src="~/js/signalr/dist/browser/signalr.js" type="text/javascript"></script>
 <script>
@@ -27,7 +31,15 @@
                 var mainTable = document.getElementById("onlineList");
                 mainTable.append(newOrderNode);
             }
-            toastr.success("Data is successed");
+        });
+
+        connection.on("notifyMessage", function (notifyMessage) {
+            if (notifyMessage.notifyType == "success") {
+                toastr.success(notifyMessage.notificationDescription, notifyMessage.notificationName);
+            }
+            else if (notifyMessage.notifyType == "info") {
+                toastr.info(notifyMessage.notificationDescription, notifyMessage.notificationName);
+            }
         });
     })();
 
@@ -51,8 +63,15 @@
                 headers: {
                     'content-type': 'application/json'
                 }
-            }).then(response => console.log("order created"));
-        }
+            }).then(response => {
+                if (response.status) {
+                    $('#notificationModal').modal('hide');
+                }
+                else {
+                    toastr.error(response.message);
+                }
+            }
+        )}
         else {
             if (notificationName)
                 notificationDescription_error.innerHTML = "You must add a Notification Description!";
