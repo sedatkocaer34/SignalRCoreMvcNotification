@@ -3,16 +3,15 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using SignalRCoreMvcNotification.DataContext;
 using SignalRCoreMvcNotification.Helpers;
 using SignalRCoreMvcNotification.Models;
 using SignalRCoreMvcNotification.Models.Domain;
 using SignalRCoreMvcNotification.Models.ViewModels;
+using SignalRCoreMvcNotification.Redis;
 using SignalRCoreMvcNotification.Security;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -24,13 +23,14 @@ namespace SignalRCoreMvcNotification.Controllers
         private readonly IHubContext<UsersHub> _hubContext;
         private SignalRCoreDataContext _dataContext;
         private IPasswordHash _passwordHash;
-
+        private IRedisService _redisService;
         public HomeController(IHubContext<UsersHub> hubContext , SignalRCoreDataContext dataContext 
-        ,IPasswordHash passwordHash)
+        ,IPasswordHash passwordHash, IRedisService redisService)
         {
             _passwordHash = passwordHash;
             _hubContext = hubContext;
             _dataContext = dataContext;
+            _redisService = redisService;
         }
 
         [HttpGet]
@@ -135,7 +135,18 @@ namespace SignalRCoreMvcNotification.Controllers
             if (ModelState.IsValid)
             {
                 notificationViewModel.NotifyType = "info";
+                var notificationList = _redisService.Get<List<NotificationViewModel>>("notificationlist");
+
+                if (notificationList==null)
+                {
+                    notificationList = new List<NotificationViewModel>();
+                }
+
+                notificationList.Add(notificationViewModel);
                 _hubContext.Clients.All.SendAsync("notifyMessage", notificationViewModel);
+
+                _redisService.set<List<NotificationViewModel>>("notificationlist", notificationList);
+                _hubContext.Clients.All.SendAsync("notifyMessageList", notificationList);
                 return Json(new { status = true, message = "Notify Inserted." });
             }
             return Json(new { status = false, message = "Please fill all input" });

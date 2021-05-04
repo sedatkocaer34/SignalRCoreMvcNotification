@@ -41,6 +41,13 @@
                 toastr.info(notifyMessage.notificationDescription, notifyMessage.notificationName);
             }
         });
+
+        connection.on("notifyMessageList", function (notifyMessageList) {
+            console.log(notifyMessageList);
+            for (var i = 0; i < notifyMessageList.length; i++) {
+                console.log(notifyMessageList[i]);
+            }
+        });
     })();
 
     function createNotification() {
