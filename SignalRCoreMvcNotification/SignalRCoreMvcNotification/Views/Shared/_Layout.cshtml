@@ -28,8 +28,8 @@
                     }
                     else
                     {
-                        <a asp-controller="Home" asp-action="Login" class="nav-item nav-link">Profile</a>
-                        <a asp-controller="Home" asp-action="Register" class="nav-item nav-link">Notification List</a>
+                        <a asp-controller="Home" asp-action="Login" class="nav-item nav-link">@User.Identity.Name</a>
+                        <a asp-controller="Home" asp-action="Register" data-toggle="modal" data-target="#notificationModal" class="nav-item nav-link">Create Notification</a>
                         <a asp-controller="Home" asp-action="Logout" class="nav-item nav-link">Logout</a>
                     }
                 </div>

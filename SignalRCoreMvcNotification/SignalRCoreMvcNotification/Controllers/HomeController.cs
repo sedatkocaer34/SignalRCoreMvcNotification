@@ -128,10 +128,9 @@ namespace SignalRCoreMvcNotification.Controllers
             return View(userRegisterViewModel);
         }
 
-        [HttpGet]
-        public IActionResult GetOnlineUser()
+        [HttpPost]
+        public IActionResult CreateNotification()
         {
-           
             return Accepted();
         }
 
