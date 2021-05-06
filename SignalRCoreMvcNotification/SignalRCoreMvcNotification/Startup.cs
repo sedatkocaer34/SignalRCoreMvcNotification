@@ -1,14 +1,19 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using SignalRCoreMvcNotification.DataContext;
 using SignalRCoreMvcNotification.Models;
 using SignalRCoreMvcNotification.Redis;
 using SignalRCoreMvcNotification.Security;
+using SignalRCoreMvcNotification.Security.Jwt;
+using System;
+using System.Text;
 
 namespace SignalRCoreMvcNotification
 {
@@ -35,6 +40,8 @@ namespace SignalRCoreMvcNotification
             services.AddDbContext<SignalRCoreDataContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<IPasswordHash, PasswordHash>();
             services.AddScoped<IRedisService, RedisManager>();
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,7 +61,8 @@ namespace SignalRCoreMvcNotification
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseMiddleware<JwtMiddleware>();
+            app.UseCors();
             app.UseAuthorization();
             app.UseAuthentication();
             app.UseCookiePolicy();

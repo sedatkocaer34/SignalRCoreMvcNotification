@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using SignalRCoreMvcNotification.Models.ViewModels;
 using SignalRCoreMvcNotification.Redis;
+using SignalRCoreMvcNotification.Security.Jwt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace SignalRCoreMvcNotification.Models
         {
             _redisService = redisService;
         }
+
+        [Authorize]
         public override Task OnConnectedAsync()
         {
             var currentUser = Context.User;
@@ -31,6 +34,7 @@ namespace SignalRCoreMvcNotification.Models
             return base.OnConnectedAsync();
         }
 
+        [Authorize]
         public override Task OnDisconnectedAsync(Exception exception)
         {
             var onlineuser = _redisService.Get<List<OnlineUserViewModel>>("onlineuser");

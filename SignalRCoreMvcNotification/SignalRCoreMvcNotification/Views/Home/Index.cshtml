@@ -13,8 +13,10 @@
 <script src="~/js/signalr/dist/browser/signalr.js" type="text/javascript"></script>
 <script>
     (function setupConnection() {
+       
         var connection = new signalR.HubConnectionBuilder().withUrl("/usershub").build();
         connection.start().catch(err => console.error(err.toString())).then(response => console.log("connected"));
+
         connection.on("connectuserlist", function (userlist) {
             for (var i = 0; i < userlist.length; i++) {
                 var newOrderNode = document.createElement("TR");
@@ -41,13 +43,7 @@
                 toastr.info(notifyMessage.notificationDescription, notifyMessage.notificationName);
             }
         });
-
-        connection.on("notifyMessageList", function (notifyMessageList) {
-            console.log(notifyMessageList);
-            for (var i = 0; i < notifyMessageList.length; i++) {
-                console.log(notifyMessageList[i]);
-            }
-        });
+       
     })();
 
     function createNotification() {
@@ -86,6 +82,7 @@
                 notificationName_error.innerHTML = "You must add a Notification Name!";
         }
     }
+    
 </script>
 <div class="container">
     <div class="row">
@@ -103,18 +100,18 @@
             </table>
         </div>
         <div class="col-xs-8 col-md-8">
-            <h3 style="text-align:center;">Notifications</h3>
+            <h3 style="text-align:center;">Your Notifications</h3>
             <table class="table">
                 <thead>
                     <tr>
                         <th scope="col">Notificaiton Name</th>
                         <th scope="col">Notificaiton Description</th>
-                        <th scope="col">Notificaiton Owner</th>
+                        <th scope="col">Notificaiton Date</th>
                     </tr>
                 </thead>
                 <tbody id="notificationList">
                     <tr>
-                        <th scope="col">Sedat</th>
+                        <td scope="col">Sedat</td>
                         <td scope="col">Sedat 2</td>
                         <td scope="col">Sedat 3</td>
                     </tr>

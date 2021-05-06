@@ -1,17 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SignalRCoreMvcNotification.DataContext;
 using SignalRCoreMvcNotification.Helpers;
 using SignalRCoreMvcNotification.Models;
 using SignalRCoreMvcNotification.Models.Domain;
 using SignalRCoreMvcNotification.Models.ViewModels;
-using SignalRCoreMvcNotification.Redis;
 using SignalRCoreMvcNotification.Security;
+using SignalRCoreMvcNotification.Security.Jwt;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -23,23 +24,20 @@ namespace SignalRCoreMvcNotification.Controllers
         private readonly IHubContext<UsersHub> _hubContext;
         private SignalRCoreDataContext _dataContext;
         private IPasswordHash _passwordHash;
-        private IRedisService _redisService;
+        readonly IConfiguration _configuration;
         public HomeController(IHubContext<UsersHub> hubContext , SignalRCoreDataContext dataContext 
-        ,IPasswordHash passwordHash, IRedisService redisService)
+        ,IPasswordHash passwordHash, IConfiguration configuration)
         {
             _passwordHash = passwordHash;
             _hubContext = hubContext;
             _dataContext = dataContext;
-            _redisService = redisService;
+            _configuration = configuration;
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult Index()
         {
-            if (!User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction(ActionNameHelper.HomeLogin);
-            }
             return View();
         }
 
@@ -64,6 +62,12 @@ namespace SignalRCoreMvcNotification.Controllers
                     if (checkPassword)
                     {
                         SetUserNamePrincipal(checkUser.Username);
+                        TokenHandler tokenHandler = new TokenHandler(_configuration);
+                        string token = tokenHandler.CreateAccessToken(checkUser.Id,5);
+
+                        Response.Cookies.Append("token", token,
+                        new CookieOptions { HttpOnly = true });
+
                         return RedirectToAction(ActionNameHelper.HomeIndex);
                     }
                     userLoginViewModel.IsSuccess = false;
@@ -129,24 +133,22 @@ namespace SignalRCoreMvcNotification.Controllers
             return View(userRegisterViewModel);
         }
 
+        [Authorize]
         [HttpPost]
         public JsonResult CreateNotification([FromBody] NotificationViewModel notificationViewModel)
         {
             if (ModelState.IsValid)
             {
                 notificationViewModel.NotifyType = "info";
-                var notificationList = _redisService.Get<List<NotificationViewModel>>("notificationlist");
-
-                if (notificationList==null)
+                _dataContext.Notifications.Add(new Notifications()
                 {
-                    notificationList = new List<NotificationViewModel>();
-                }
-
-                notificationList.Add(notificationViewModel);
+                    CreatedDate=DateTime.Now,
+                    NotificationName= notificationViewModel.NotificationName,
+                    NotificationDescription=notificationViewModel.NotificationDescription,
+                    UserId = ((UserContextModel)HttpContext.Items["User"]).Id
+                });
+                _dataContext.SaveChanges();
                 _hubContext.Clients.All.SendAsync("notifyMessage", notificationViewModel);
-
-                _redisService.set<List<NotificationViewModel>>("notificationlist", notificationList);
-                _hubContext.Clients.All.SendAsync("notifyMessageList", notificationList);
                 return Json(new { status = true, message = "Notify Inserted." });
             }
             return Json(new { status = false, message = "Please fill all input" });
@@ -162,6 +164,7 @@ namespace SignalRCoreMvcNotification.Controllers
             var login = HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
         }
 
+        [Authorize]
         public IActionResult Logout()
         {
             HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

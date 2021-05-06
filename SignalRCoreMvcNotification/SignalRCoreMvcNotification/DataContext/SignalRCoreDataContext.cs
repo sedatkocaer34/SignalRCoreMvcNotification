@@ -14,6 +14,12 @@ namespace SignalRCoreMvcNotification.DataContext
 
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
+
         public DbSet<User> User { get; set; }
+        public DbSet<Notifications> Notifications { get; set; }
     }
 }
