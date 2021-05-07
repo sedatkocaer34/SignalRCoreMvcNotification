@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using SignalRCoreMvcNotification.AutoMapper;
 using SignalRCoreMvcNotification.DataContext;
 using SignalRCoreMvcNotification.Models;
 using SignalRCoreMvcNotification.Redis;
@@ -41,7 +42,8 @@ namespace SignalRCoreMvcNotification
             services.AddScoped<IPasswordHash, PasswordHash>();
             services.AddScoped<IRedisService, RedisManager>();
 
-            
+            services.AddAutoMapper(typeof(ModelToViewModelMapping), typeof(ViewModelToModelMapping));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

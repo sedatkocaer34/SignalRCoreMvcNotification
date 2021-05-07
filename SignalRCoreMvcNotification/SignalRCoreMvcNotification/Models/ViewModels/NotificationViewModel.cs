@@ -10,5 +10,6 @@ namespace SignalRCoreMvcNotification.Models.ViewModels
         public string NotificationName { get; set; }
         public string NotificationDescription { get; set; }
         public string NotifyType { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }

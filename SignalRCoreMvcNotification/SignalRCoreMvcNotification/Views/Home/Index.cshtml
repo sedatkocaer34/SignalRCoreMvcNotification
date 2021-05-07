@@ -1,4 +1,5 @@
-﻿@{
+﻿@model List<SignalRCoreMvcNotification.Models.ViewModels.NotificationViewModel>
+@{
     ViewData["Title"] = "Home Page";
 }
 <style>
@@ -69,6 +70,28 @@
             }).then(response => {
                 if (response.status) {
                     $('#notificationModal').modal('hide');
+                    response.json().then(function (data) {
+                        var newNode = document.createElement("TR");
+
+                        var notificationName = document.createElement("TD");
+                        notificationName.innerHTML = data.data.notificationName;
+
+                        var notificationDescription = document.createElement("TD");
+                        notificationDescription.innerHTML = data.data.notificationDescription;
+
+                        var notificationDate = document.createElement("TD");
+                        notificationDate.innerHTML = data.data.createdDate;
+
+                        newNode.appendChild(notificationName);
+                        newNode.appendChild(notificationDescription);
+                        newNode.appendChild(notificationDate);
+
+                        var mainTable = document.getElementById("notificationList");
+                        mainTable.insertBefore(newNode, mainTable.childNodes[0]);
+                    });
+                   
+
+                    
                 }
                 else {
                     toastr.error(response.message);
@@ -110,11 +133,14 @@
                     </tr>
                 </thead>
                 <tbody id="notificationList">
-                    <tr>
-                        <td scope="col">Sedat</td>
-                        <td scope="col">Sedat 2</td>
-                        <td scope="col">Sedat 3</td>
-                    </tr>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td scope="col">@item.NotificationName</td>
+                            <td scope="col">@item.NotificationDescription</td>
+                            <td scope="col">@item.CreatedDate</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>

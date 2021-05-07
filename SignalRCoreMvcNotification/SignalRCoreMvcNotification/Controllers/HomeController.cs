@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ using SignalRCoreMvcNotification.Models.ViewModels;
 using SignalRCoreMvcNotification.Security;
 using SignalRCoreMvcNotification.Security.Jwt;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -25,20 +27,27 @@ namespace SignalRCoreMvcNotification.Controllers
         private SignalRCoreDataContext _dataContext;
         private IPasswordHash _passwordHash;
         readonly IConfiguration _configuration;
+        private IMapper _mapper;
         public HomeController(IHubContext<UsersHub> hubContext , SignalRCoreDataContext dataContext 
-        ,IPasswordHash passwordHash, IConfiguration configuration)
+        ,IPasswordHash passwordHash, IConfiguration configuration, IMapper mapper)
         {
             _passwordHash = passwordHash;
             _hubContext = hubContext;
             _dataContext = dataContext;
             _configuration = configuration;
+            _mapper = mapper;
         }
 
         [Authorize]
         [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            if (User.Identity.IsAuthenticated)
+            {
+                var userNotification = _dataContext.Notifications.Where(x=>x.UserId== ((UserContextModel)HttpContext.Items["User"]).Id).ToList();
+                return View(_mapper.Map<List<NotificationViewModel>>(userNotification));
+            }
+            return RedirectToAction();
         }
 
         [HttpGet]
@@ -149,7 +158,7 @@ namespace SignalRCoreMvcNotification.Controllers
                 });
                 _dataContext.SaveChanges();
                 _hubContext.Clients.All.SendAsync("notifyMessage", notificationViewModel);
-                return Json(new { status = true, message = "Notify Inserted." });
+                return Json(new { status = true, data =notificationViewModel, message = "Notify Inserted." });
             }
             return Json(new { status = false, message = "Please fill all input" });
         }
